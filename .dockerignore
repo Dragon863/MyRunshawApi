@@ -1,0 +1,13 @@
+.git
+.gitignore
+.vs/
+.static/
+
+**/bin/
+**/obj/
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/example.appsettings*.json
+
+minio/profiles/
+minio/minio.license

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyRunshaw.Api/MyRunshaw.Api.csproj" />
+    <Project Path="src/MyRunshaw.Application/MyRunshaw.Application.csproj" />
+    <Project Path="src/MyRunshaw.Contracts/MyRunshaw.Contracts.csproj" />
+    <Project Path="src/MyRunshaw.Domain/MyRunshaw.Domain.csproj" />
+    <Project Path="src/MyRunshaw.Infrastructure/MyRunshaw.Infrastructure.csproj" />
+    <Project Path="src/MyRunshaw.Workers/MyRunshaw.Workers.csproj" />
+  </Folder>
+</Solution>

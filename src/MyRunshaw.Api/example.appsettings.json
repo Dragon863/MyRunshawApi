@@ -1,0 +1,50 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Information"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=host.docker.internal;Database=myrunshaw_db;Username=postgres;Password=password",
+    "Redis": "localhost:6379"
+  },
+  "EntraId": {
+    "TenantId": "4dcd8020-d84c-482f-bdf6-71d3ca953b8c",
+    "ClientId": "a259dcce-b2fb-4644-a4e5-d88b70554b86"
+  },
+  "JwtSettings": {
+    "Secret": "[generate with 'openssl rand -base64 32']",
+    "Issuer": "MyRunshawApi",
+    "Audience": "MyRunshawFlutterApp",
+    "ExpirationInDays": 30
+  },
+  "OneSignal": {
+    "AppId": "",
+    "RestApiKey": "os_v2_app_..."
+  },
+  "Payments": {
+    "BalanceUrl": "https://example.com/balance?user=",
+    "TransactionsUrl": "https://example.com/transactions?user="
+  },
+  "S3": {
+    "Endpoint": "http://minio:9000",
+    "AccessKey": "S3_ACCESS_KEY",
+    "SecretKey": "S3_SECRET_KEY",
+    "BucketName": "profiles",
+    "PublicBaseUrl": "https://s3.example.com/profiles/"
+  },
+  "NotificationChannels": {
+    "Bus": {
+      "Id": "GUID-FROM-ONESIGNAL"
+    },
+    "Generic": {
+      "Id": "GUID-FROM-ONESIGNAL"
+    }
+  },
+  "Auth": {
+    "BypassSecret": "SecretForAppStoreReviewers",
+    "DemoStudentId": "aaa12345678",
+    "DemoTimetableUrl": "https://webservices.runshaw.ac.uk/timetable.ashx?id=[something]"
+  }
+}

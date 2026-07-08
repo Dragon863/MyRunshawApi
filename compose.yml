@@ -1,0 +1,74 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: runshaw_redis
+    restart: unless-stopped
+    volumes:
+      - runshaw_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: runshaw_api
+    restart: unless-stopped
+    ports:
+      - "5267:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    working_dir: /app/api
+    command: ["dotnet", "MyRunshaw.Api.dll"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./appsettings.Production.json:/app/api/appsettings.Production.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: runshaw_workers
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    working_dir: /app/worker
+    command: ["dotnet", "MyRunshaw.Workers.dll"]
+    depends_on:
+      - api
+    volumes:
+      - ./appsettings.Production.json:/app/worker/appsettings.Production.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  minio:
+    image: quay.io/minio/aistor/minio:latest
+    user: 1000:1000
+    command: server --console-address ":9001" /data --license /minio.license
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    hostname: minio
+    volumes:
+      - ./minio/profiles:/data
+      - ./minio/minio.license:/minio.license:ro
+
+volumes:
+  runshaw_redis_data:
