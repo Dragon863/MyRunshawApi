@@ -31,13 +31,6 @@ public sealed class BusArrivalScraperService
         var ukTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
         var ukTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ukTimeZone);
 
-        // At midnight, reset all the bays to zero. I'd hope the buses would be gone by then!
-        if (ukTime.Hour == 0 && ukTime.Minute == 0)
-        {
-            await _repository.ResetAllBusesToZeroAsync();
-            return;
-        }
-
         // Fetch scraped data and our database state
         IReadOnlyList<ScrapedBusArrival> scrapedArrivals = await _scraper.GetArrivalsAsync();
         var allBuses = await _repository.GetAllBusesAsync();

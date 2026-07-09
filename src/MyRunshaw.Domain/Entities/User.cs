@@ -4,7 +4,7 @@ namespace MyRunshaw.Domain.Entities;
 
 public class User
 {
-    [Key] // let EF Core know this is the Primary Key
+    [Key] // let EF Core know this is the Primary Key; student IDs are unique
     [MaxLength(11)] // ABC12345678
     public string StudentId { get; set; } = string.Empty;
 

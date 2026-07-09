@@ -57,6 +57,18 @@ builder.Services.AddQuartz(q =>
             x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/London")))
     );
 
+    var busResetJobKey = new JobKey("BusBayResetJob");
+    q.AddJob<BusBayResetJob>(opts => opts.WithIdentity(busResetJobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(busResetJobKey)
+        .WithIdentity("BusBayResetTrigger")
+        // 12:00 AM every day
+        .WithCronSchedule("0 0 0 * * ?", x =>
+            // Adjust automatically for Daylight Saving Time
+            x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Europe/London")))
+    );
+
     // run bus route scraper on startup, so we don't have to wait until Sunday for the first scrape
     q.AddTrigger(opts => opts
         .ForJob(routeJobKey)
@@ -91,7 +103,12 @@ builder.Services.AddOpenTelemetry()
                             o.Headers = builder.Configuration["Opentelemetry:OtlpHeaders"] ?? "";
                         }
                     );
-    })
+    });
+
+
+if (builder.Configuration["Opentelemetry:OtlpMetricsEndpoint"] is not null)
+{
+    builder.Services.AddOpenTelemetry()
     .WithMetrics(metrics =>
     {
         metrics.SetResourceBuilder(resourceBuilder)
@@ -101,13 +118,14 @@ builder.Services.AddOpenTelemetry()
                  o =>
                  {
                      o.Endpoint = new Uri(
-                        builder.Configuration["Opentelemetry:OtlpMetricsEndpoint"] ?? "http://localhost:4317"
+                        builder.Configuration["Opentelemetry:OtlpMetricsEndpoint"]!
                     );
                      o.Protocol = OtlpExportProtocol.HttpProtobuf;
                      o.Headers = builder.Configuration["Opentelemetry:OtlpHeaders"] ?? "";
                  }
                );
     });
+}
 
 builder.Logging.AddOpenTelemetry(logging =>
 {
