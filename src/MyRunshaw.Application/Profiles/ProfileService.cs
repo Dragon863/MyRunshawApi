@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using MyRunshaw.Application.Authentication;
 using MyRunshaw.Application.Storage;
 using SkiaSharp;
@@ -9,14 +10,16 @@ public class ProfileService : IProfileService
 {
     private readonly IStorageService _storageService;
     private readonly IUserRepository _userRepository;
+    private readonly IDistributedCache _cache;
 
     private const int MaxFileSizeInBytes = 10 * 1024 * 1024;
     private readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".webp" };
 
-    public ProfileService(IStorageService storageService, IUserRepository userRepository)
+    public ProfileService(IStorageService storageService, IUserRepository userRepository, IDistributedCache cache)
     {
         _storageService = storageService;
         _userRepository = userRepository;
+        _cache = cache;
     }
 
     public async Task<string> UploadProfilePictureAsync(string studentId, IFormFile file)
@@ -88,6 +91,9 @@ public class ProfileService : IProfileService
 
         user.Name = newName;
         await _userRepository.UpdateAsync(user);
+
+        // invalidate cache to be refreshed next time
+        await _cache.RemoveAsync($"user_name:{studentId}");
     }
 
     public async Task DeleteProfilePictureAsync(string studentId)
