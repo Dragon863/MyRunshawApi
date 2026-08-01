@@ -29,7 +29,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddHttpClient<ITimetableSyncService, TimetableSyncService>();
 builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
-builder.Services.AddScoped<IPushNotificationService, OneSignalPushService>();
+builder.Services.AddScoped<OneSignalPushService>();
+builder.Services.AddScoped<FirebasePushService>();
+builder.Services.AddScoped<IPushNotificationService>(sp =>
+    string.Equals(builder.Configuration["PushNotifications:Provider"], "Firebase", StringComparison.OrdinalIgnoreCase)
+        ? sp.GetRequiredService<FirebasePushService>()
+        : sp.GetRequiredService<OneSignalPushService>());
 
 builder.Services.AddQuartz(q =>
 {
@@ -146,7 +151,7 @@ builder.Logging.AddOpenTelemetry(logging =>
 
 builder.Services.Configure<OpenTelemetryLoggerOptions>(opt =>
 {
-    opt.ParseStateValues = true; // 
+    opt.ParseStateValues = true;
 });
 
 var host = builder.Build();

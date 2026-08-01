@@ -1,3 +1,5 @@
+using MyRunshaw.Application.Authentication;
+using MyRunshaw.Application.Common;
 using MyRunshaw.Application.Notifications;
 using MyRunshaw.Domain.Entities;
 
@@ -7,11 +9,13 @@ public class FriendService : IFriendService
 {
     private readonly IFriendRepository _friendRepository;
     private readonly IPushNotificationService _pushNotificationService;
+    private readonly IUserRepository _userRepository;
 
-    public FriendService(IFriendRepository friendRepository, IPushNotificationService pushNotificationService)
+    public FriendService(IFriendRepository friendRepository, IPushNotificationService pushNotificationService, IUserRepository userRepository)
     {
         _friendRepository = friendRepository;
         _pushNotificationService = pushNotificationService;
+        _userRepository = userRepository;
     }
 
     public async Task SendRequestAsync(string senderId, string receiverId)
@@ -43,8 +47,11 @@ public class FriendService : IFriendService
 
         await _friendRepository.AddRequestAsync(newRequest);
 
+        User? sender = await _userRepository.GetByStudentIdAsync(senderId);
+        String senderName = sender?.Name ?? senderId;
+
         // Send a push notification to the receiver
-        await _pushNotificationService.SendToUserAsync(receiverId, "New Friend Request", $"You have a new friend request from {senderId}.");
+        await _pushNotificationService.SendToUserAsync(receiverId.ToStudentId(), "New Friend Request", $"You have a new friend request from \"{senderName}\".", priority: 8, smallIcon: "friend", destination: "friends");
     }
 
     public async Task HandleRequestAsync(string studentId, int requestId, string action)
@@ -90,7 +97,8 @@ public class FriendService : IFriendService
     public async Task BlockFriendAsync(string studentId, string blockedStudentId)
     {
         // Check if they are friends
-        var existingRequest = await _friendRepository.GetRequestBetweenUsersAsync(studentId, blockedStudentId);
+        var existingRequest = await _friendRepository.GetRequestBetweenUsersAsync(studentId.ToStudentId(), blockedStudentId.ToStudentId());
+        Console.WriteLine($"Existing request between {studentId} and {blockedStudentId}: {existingRequest?.Status}");
         if (existingRequest != null && existingRequest.Status == FriendRequestStatus.Accepted)
         {
             // If they are friends, delete the friendship

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MyRunshaw.Application.Common;
 using MyRunshaw.Application.Friends;
 using MyRunshaw.Domain.Entities;
 using MyRunshaw.Infrastructure.Database;
@@ -21,19 +22,26 @@ public class FriendRepository : IFriendRepository
 
     public async Task<FriendRequest?> GetRequestBetweenUsersAsync(string studentOneId, string studentTwoId)
     {
+        var normalizedStudentOneId = studentOneId.ToStudentId();
+        var normalizedStudentTwoId = studentTwoId.ToStudentId();
+
         return await _dbContext.FriendRequests.FirstOrDefaultAsync(fr =>
-            (fr.SenderId == studentOneId && fr.ReceiverId == studentTwoId) ||
-            (fr.ReceiverId == studentTwoId && fr.SenderId == studentOneId));
+            (fr.SenderId.ToLower() == normalizedStudentOneId && fr.ReceiverId.ToLower() == normalizedStudentTwoId) ||
+            (fr.SenderId.ToLower() == normalizedStudentTwoId && fr.ReceiverId.ToLower() == normalizedStudentOneId));
     }
 
     public async Task AddRequestAsync(FriendRequest request)
     {
+        request.SenderId = request.SenderId.ToStudentId();
+        request.ReceiverId = request.ReceiverId.ToStudentId();
         _dbContext.FriendRequests.Add(request);
         await _dbContext.SaveChangesAsync();
     }
 
     public async Task UpdateRequestAsync(FriendRequest request)
     {
+        request.SenderId = request.SenderId.ToStudentId();
+        request.ReceiverId = request.ReceiverId.ToStudentId();
         _dbContext.FriendRequests.Update(request);
         await _dbContext.SaveChangesAsync();
     }

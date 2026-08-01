@@ -30,7 +30,7 @@ public class FriendsController : ControllerBase
     public async Task<IActionResult> GetFriends()
     {
         // doesn't matter what status
-        var friends = await _friendService.GetRequestsAsync(CurrentStudentId, "accepted");
+        var friends = await _friendService.GetRequestsAsync(CurrentStudentId.ToStudentId(), "accepted");
         return Ok(friends);
     }
 
@@ -42,7 +42,7 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            await _friendService.SendRequestAsync(CurrentStudentId, request.receiver_id.ToStudentId());
+            await _friendService.SendRequestAsync(CurrentStudentId.ToStudentId(), request.receiver_id.ToStudentId());
             return Ok(new { message = "Friend request sent." });
         }
         catch (ArgumentException ex)
@@ -57,7 +57,7 @@ public class FriendsController : ControllerBase
     [HttpGet("api/friend-requests")]
     public async Task<IActionResult> GetFriendRequests([FromQuery] string status = "pending")
     {
-        var requests = await _friendService.GetRequestsAsync(CurrentStudentId, status);
+        var requests = await _friendService.GetRequestsAsync(CurrentStudentId.ToStudentId(), status);
 
         // Format to match old expectations if needed, but returning the raw objects is usually fine
         return Ok(requests.Select(r => new
@@ -79,7 +79,7 @@ public class FriendsController : ControllerBase
     {
         try
         {
-            await _friendService.HandleRequestAsync(CurrentStudentId, request_id, request.action);
+            await _friendService.HandleRequestAsync(CurrentStudentId.ToStudentId(), request_id, request.action);
             return Ok(new { message = $"Request {request.action}ed successfully." });
         }
         catch (Exception ex) when (ex is UnauthorizedAccessException || ex is KeyNotFoundException)
@@ -123,7 +123,7 @@ public class FriendsController : ControllerBase
     [HttpPost("api/block")]
     public async Task<IActionResult> BlockFriend([FromBody] BlockFriendBody request)
     {
-        await _friendService.BlockFriendAsync(CurrentStudentId, request.blocked_id.ToStudentId());
+        await _friendService.BlockFriendAsync(CurrentStudentId.ToStudentId(), request.blocked_id.ToStudentId());
         return Ok(new { message = "Friend blocked successfully." });
     }
 }

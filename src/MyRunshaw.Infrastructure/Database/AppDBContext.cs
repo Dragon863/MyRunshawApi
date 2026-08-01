@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<BusSubscription> BusSubscriptions { get; set; }
     public DbSet<TimetableCache> Timetables { get; set; }
     public DbSet<InAppNotice> InAppNotices { get; set; }
+    public DbSet<NotificationDevice> NotificationDevices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,16 @@ public class AppDbContext : DbContext
         // One user can block many users, and one user can be blocked by many users.
         modelBuilder.Entity<BlockedUser>()
             .HasKey(bu => new { bu.BlockerId, bu.BlockedId });
+
+        modelBuilder.Entity<NotificationDevice>()
+            .HasIndex(d => new { d.StudentId, d.DeviceId })
+            .IsUnique();
+
+        // PostgreSQL permits multiple NULLs in a unique index, allowing disabled devices to
+        // retain their preferences after their invalid FCM token has been cleared.
+        modelBuilder.Entity<NotificationDevice>()
+            .HasIndex(d => d.FcmToken)
+            .IsUnique();
 
         // If a user is deleted, their sent and received friend requests should also be deleted.
         modelBuilder.Entity<FriendRequest>()

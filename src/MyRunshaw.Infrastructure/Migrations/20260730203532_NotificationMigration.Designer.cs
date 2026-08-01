@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyRunshaw.Domain.Entities;
 using MyRunshaw.Infrastructure.Database;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyRunshaw.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260730203532_NotificationMigration")]
+    partial class NotificationMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,6 +249,21 @@ namespace MyRunshaw.Infrastructure.Migrations
                     b.ToTable("NotificationDevices");
                 });
 
+            modelBuilder.Entity("MyRunshaw.Domain.Entities.NotificationDeviceBusSubscription", b =>
+                {
+                    b.Property<int>("NotificationDeviceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BusId")
+                        .HasColumnType("text");
+
+                    b.HasKey("NotificationDeviceId", "BusId");
+
+                    b.HasIndex("BusId");
+
+                    b.ToTable("NotificationDeviceBusSubscriptions");
+                });
+
             modelBuilder.Entity("MyRunshaw.Domain.Entities.TimetableCache", b =>
                 {
                     b.Property<int>("Id")
@@ -378,6 +396,25 @@ namespace MyRunshaw.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("MyRunshaw.Domain.Entities.NotificationDeviceBusSubscription", b =>
+                {
+                    b.HasOne("MyRunshaw.Domain.Entities.Bus", "Bus")
+                        .WithMany()
+                        .HasForeignKey("BusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyRunshaw.Domain.Entities.NotificationDevice", "NotificationDevice")
+                        .WithMany("BusSubscriptions")
+                        .HasForeignKey("NotificationDeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bus");
+
+                    b.Navigation("NotificationDevice");
+                });
+
             modelBuilder.Entity("MyRunshaw.Domain.Entities.TimetableCache", b =>
                 {
                     b.HasOne("MyRunshaw.Domain.Entities.User", "Student")
@@ -394,6 +431,11 @@ namespace MyRunshaw.Infrastructure.Migrations
                     b.Navigation("BusStops");
 
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("MyRunshaw.Domain.Entities.NotificationDevice", b =>
+                {
+                    b.Navigation("BusSubscriptions");
                 });
 
             modelBuilder.Entity("MyRunshaw.Domain.Entities.User", b =>

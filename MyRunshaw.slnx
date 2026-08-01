@@ -7,4 +7,7 @@
     <Project Path="src/MyRunshaw.Infrastructure/MyRunshaw.Infrastructure.csproj" />
     <Project Path="src/MyRunshaw.Workers/MyRunshaw.Workers.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyRunshaw.Workers.Tests/MyRunshaw.Workers.Tests.csproj" />
+  </Folder>
 </Solution>
