@@ -26,7 +26,7 @@ public class OneSignalPushService : IPushNotificationService
         _oneSignalApi = new DefaultApi(appConfig);
     }
 
-    public async Task SendToUserAsync(string studentId, string heading, string content, int ttlSeconds = 600, string? androidChannelId = null, string? smallIcon = null, int priority = 10)
+    public async Task SendToUserAsync(string studentId, string heading, string content, int ttlSeconds = 600, string? androidChannelId = null, string? smallIcon = null, int priority = 10, string destination = "friends", string? busId = null, string? bay = null)
     {
         var notification = new Notification(appId: _appId)
         {
@@ -64,7 +64,7 @@ public class OneSignalPushService : IPushNotificationService
         }
     }
 
-    public async Task SendToUsersAsync(IEnumerable<string> studentIds, string heading, string content, int ttlSeconds = 600, string? androidChannelId = null, string? smallIcon = null, int priority = 10)
+    public async Task SendToUsersAsync(IEnumerable<string> studentIds, string heading, string content, int ttlSeconds = 600, string? androidChannelId = null, string? smallIcon = null, int priority = 10, string destination = "friends", string? busId = null, string? bay = null)
     {
         var idList = studentIds.Select(id => id.ToLowerInvariant()).ToList();
 

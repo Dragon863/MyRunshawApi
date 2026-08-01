@@ -9,14 +9,18 @@ public class BusArrivalScraperWorker(IServiceScopeFactory scopeFactory) : Backgr
     private readonly TimeOnly _startTime = new TimeOnly(15, 0);  // 3:00 PM
     private readonly TimeOnly _endTime = new TimeOnly(16, 15);   // 4:15 PM
 
-    public bool IsWithinInterval()
+    public bool IsWithinInterval() => IsWithinInterval(DateTimeOffset.UtcNow, _startTime, _endTime);
+
+    public static bool IsWithinInterval(DateTimeOffset utcNow, TimeOnly startTime, TimeOnly endTime)
     {
-        var now = DateTime.Now;
-        if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
+        var ukTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
+        var ukNow = TimeZoneInfo.ConvertTime(utcNow, ukTimeZone);
+
+        if (ukNow.DayOfWeek == DayOfWeek.Saturday || ukNow.DayOfWeek == DayOfWeek.Sunday)
             return false;
 
-        var timeOfDay = TimeOnly.FromDateTime(now);
-        return timeOfDay >= _startTime && timeOfDay <= _endTime;
+        var timeOfDay = TimeOnly.FromDateTime(ukNow.DateTime);
+        return timeOfDay >= startTime && timeOfDay <= endTime;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

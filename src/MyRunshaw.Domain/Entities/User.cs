@@ -22,4 +22,5 @@ public class User
     public ICollection<BusSubscription> BusSubscriptions { get; set; } = new List<BusSubscription>();
     public ICollection<FriendRequest> SentFriendRequests { get; set; } = new List<FriendRequest>();
     public ICollection<FriendRequest> ReceivedFriendRequests { get; set; } = new List<FriendRequest>();
+    public ICollection<NotificationDevice> NotificationDevices { get; set; } = new List<NotificationDevice>();
 }

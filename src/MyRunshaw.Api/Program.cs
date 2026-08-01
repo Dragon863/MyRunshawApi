@@ -82,6 +82,7 @@ builder.Services.AddScoped<IBusRepository, BusRepository>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 builder.Services.AddScoped<IInAppNoticeRepository, NoticeRepository>();
+builder.Services.AddScoped<INotificationDeviceRepository, NotificationDeviceRepository>();
 
 builder.Services.AddScoped<IFriendService, FriendService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -91,8 +92,14 @@ builder.Services.AddScoped<INameService, NameService>();
 builder.Services.AddScoped<ISyncService, SyncService>();
 builder.Services.AddScoped<IStorageService, S3StorageService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IPushNotificationService, OneSignalPushService>();
+builder.Services.AddScoped<OneSignalPushService>();
+builder.Services.AddScoped<FirebasePushService>();
+builder.Services.AddScoped<IPushNotificationService>(sp =>
+    string.Equals(builder.Configuration["PushNotifications:Provider"], "Firebase", StringComparison.OrdinalIgnoreCase)
+        ? sp.GetRequiredService<FirebasePushService>()
+        : sp.GetRequiredService<OneSignalPushService>());
 builder.Services.AddScoped<INoticeService, NoticeService>();
+builder.Services.AddScoped<INotificationDeviceService, NotificationDeviceService>();
 
 builder.Services.AddHttpClient<IBusRouteScraper, BusRouteScraper>();
 builder.Services.AddScoped<BusRouteScraperService>();

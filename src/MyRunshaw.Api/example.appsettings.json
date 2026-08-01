@@ -23,6 +23,12 @@
     "AppId": "",
     "RestApiKey": "os_v2_app_..."
   },
+  "PushNotifications": {
+    "Provider": "OneSignal"
+  },
+  "Firebase": {
+    "ServiceAccountJson": ""
+  },
   "Payments": {
     "BalanceUrl": "https://example.com/balance?user=",
     "TransactionsUrl": "https://example.com/transactions?user="

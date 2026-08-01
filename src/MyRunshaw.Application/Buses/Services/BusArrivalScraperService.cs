@@ -66,13 +66,13 @@ public sealed class BusArrivalScraperService
                         ? $"Arrived in {newBay}"
                         : $"Moved from bay {oldBay} to {newBay}";
 
-                    await SendNotification(bus.BusId, message);
+                    await SendNotification(bus.BusId, newBay, message);
                 }
             }
         }
     }
 
-    private async Task SendNotification(string busId, string content)
+    private async Task SendNotification(string busId, string bay, string content)
     {
         var studentIds = await _repository.GetSubscribersForBusAsync(busId);
 
@@ -88,7 +88,10 @@ public sealed class BusArrivalScraperService
             priority: 10,
             ttlSeconds: 75 * 60, // 75 minutes; helpful if buses arrive early but a student is in an exam -> phone off
             smallIcon: "ic_stat_onesignal_default",
-            androidChannelId: _busNotificationChannelId
+            androidChannelId: _busNotificationChannelId,
+            destination: "bus",
+            busId: busId,
+            bay: bay
         );
     }
 }
