@@ -58,12 +58,13 @@ public class AuthService : IAuthService
             user = new User { StudentId = studentId, Name = name };
             await _userRepository.AddAsync(user);
         }
-        else if (user.Name != name)
-        {
-            // we should update the name if it's been changed in Entra ID
-            user.Name = name;
-            await _userRepository.UpdateAsync(user);
-        }
+        // removed for now so as not to change users' custom display names if onboarding is triggered after initial login
+        // else if (user.Name != name)
+        // {
+        //     // we should update the name if it's been changed in Entra ID
+        //     user.Name = name;
+        //     await _userRepository.UpdateAsync(user);
+        // }
 
         return GenerateCustomJwt(user);
     }
