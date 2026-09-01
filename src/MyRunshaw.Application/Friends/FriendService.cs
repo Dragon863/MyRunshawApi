@@ -37,6 +37,13 @@ public class FriendService : IFriendService
             }
         }
 
+        // check receiver exists
+        var receiver = await _userRepository.GetByStudentIdAsync(receiverId);
+        if (receiver == null)
+        {
+            throw new KeyNotFoundException("The user you're trying to send a friend request to doesn't have a My Runshaw account - they need to sign up first.");
+        }
+
         var newRequest = new FriendRequest
         {
             SenderId = senderId,
