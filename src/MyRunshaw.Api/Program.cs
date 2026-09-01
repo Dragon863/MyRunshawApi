@@ -108,7 +108,11 @@ builder.Services.AddHttpClient<BusRouteScraperService>();
 builder.Services.AddHttpClient<IBusArrivalScraper, BusArrivalScraper>();
 builder.Services.AddScoped<BusArrivalScraperService>();
 
-builder.Services.AddHttpClient<IPaymentService, PaymentScraperService>();
+builder.Services.AddHttpClient<IPaymentService, PaymentScraperService>()
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        UseCookies = false
+    });
 builder.Services.AddHttpClient<ITimetableSyncService, TimetableSyncService>();
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]!;
