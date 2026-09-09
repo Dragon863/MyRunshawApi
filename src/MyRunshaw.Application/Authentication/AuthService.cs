@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -44,12 +45,15 @@ public class AuthService : IAuthService
         var email = principal.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
         var name = principal.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? "Unknown User";
 
-        if (string.IsNullOrEmpty(email) || (!email.EndsWith("@runshaw.ac.uk") && !email.EndsWith("@student.runshaw.ac.uk")))
-        {
-            throw new UnauthorizedAccessException("Only active Runshaw students can log in.");
-        }
+        var studentId = email?.Split('@')[0].ToLowerInvariant();
 
-        var studentId = email.Split('@')[0].ToLowerInvariant();
+        if (string.IsNullOrEmpty(email)
+            || !email.EndsWith("@student.runshaw.ac.uk", StringComparison.OrdinalIgnoreCase)
+            || studentId is null
+            || !Regex.IsMatch(studentId, "^[a-zA-Z]{3}\\d{8}$"))
+        {
+            throw new UnauthorizedAccessException("Only active Runshaw students can log in with a valid student ID.");
+        }
 
         var user = await _userRepository.GetByStudentIdAsync(studentId);
 
