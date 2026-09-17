@@ -27,6 +27,7 @@ using MyRunshaw.Application.Users;
 using System.Reflection;
 using MyRunshaw.Application.Notices;
 using OpenTelemetry.Exporter;
+using MyRunshaw.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var resourceBuilder = ResourceBuilder.CreateDefault().AddService("MyRunshaw.Api");
@@ -45,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.OperationFilter<SecurityRequirementsOperationFilter>();
+    c.OperationFilter<ProblemDetailsOperationFilter>();
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -220,6 +222,9 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 var app = builder.Build();
+
+// handles exceptions which escape a controller
+app.UseMiddleware<ApiExceptionHandlerMiddleware>();
 
 // students are free to integrate the API into their own apps, so we allow Swagger in production too
 {
